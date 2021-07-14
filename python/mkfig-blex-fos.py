@@ -1,8 +1,10 @@
-"""Impulse response of a first-order section with a real pole.
+"""
+Impulse response of a first-order section with a real pole.
 
 - Full-band impulse response (decaying exponential)
 - Band-limited impulse response (BLEX function)
 - The difference between the above two (BLEX residual)
+
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -55,9 +57,6 @@ ax[2].plot(t_os/Ts, res_os, **kw_a)
 ax[0].plot(t/Ts, h_bl, **kw_d)
 ax[1].plot(t/Ts, h_fb, **kw_d)
 ax[2].plot(t/Ts, res, **kw_d)
-
-ax[0].text(10, 0.25, r'$=$', va='center')
-ax[1].text(10, 0.25, r'$+$', va='center')
 
 for axi in ax:
     axi.grid(True)
