@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 # Graphic files
-.pdf
-.png
+*.pdf
+*.png
