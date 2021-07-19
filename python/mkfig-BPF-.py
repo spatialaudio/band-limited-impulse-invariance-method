@@ -1,6 +1,5 @@
 """
-Digital modeling of an analog prototype filter using the impulse invariance
-method.
+Digital modeling of an analog prototype filter using impulse invariance method.
 
 - un-corrected
 - corrected
@@ -18,16 +17,16 @@ from matplotlib import cm
 from mpl_toolkits.axes_grid1.inset_locator import (mark_inset)
 
 
-# constants
+# Constants
 c = 343
 fs = 48000
 N_os = 10  # oversampling rate
 
-# frequencies
+# Frequencies
 fmin, fmax, num_f = 40, 24000, 2000
 f = log_frequency(fmin, fmax, num_f)
 
-# peaking EQ
+# Peaking EQ (analog prototype filter)
 fc = 1/4 * fs  # center frequency in Hz
 wc = 2*np.pi*fc  # ... in rad/s
 G = 15  # gain in dB
@@ -35,9 +34,9 @@ g = 10**(G/20)  # linear gain
 Q = 1/np.sqrt(2)  # quality factor
 b = np.array([0, 1/Q/wc, 0])  # numerator
 a = np.array([1/wc**2, 1/Q/wc, 1])  # denominator
-rpk = residue(b, a)  # partial fraction expansion (continuous-time)
+rpk = residue(b, a)  # partial fraction expansion
 
-# Filter design
+# Digital filter design
 FIR_params = [(5, 2), (11, 5), (21, 10), (41, 20)]
 Filters_bl = [impulse_invariance(
     *rpk, *firpar, fs, 'dcmbandlimited', kaiser(firpar[0], beta=8.6))
@@ -81,7 +80,7 @@ kw_legend = dict(bbox_to_anchor=(1.05, 0, 0.58, 1), mode='expand',
                  borderaxespad=0, handlelength=1.5)
 kw_savefig = dict(dpi=300, bbox_inches='tight')
 
-# conventional impulse invariant method (single-point correction)
+# Conventional impulse invariant method (single-point correction)
 fig_name = 'BPF-conventional-ii'
 fig, ax = plt.subplots(**kw_subplots)
 lines = [ax[0].plot(f, db(H_uncorr), **kw_uncorr),
@@ -112,7 +111,7 @@ legend.get_frame().set_linewidth(0.5)
 plt.savefig(fig_name + '.pdf', **kw_savefig)
 plt.savefig(fig_name + '.png', **kw_savefig)
 
-# band-limited impulse invariant method (proposed)
+# Band-limited impulse invariant method (proposed)
 fig_name = 'BPF-blii'
 fig, ax = plt.subplots(**kw_subplots)
 lines = []
