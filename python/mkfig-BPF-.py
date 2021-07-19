@@ -54,7 +54,7 @@ H_fir_stack = [freqz(Filter[1], worN=f, fs=fs)[1] for Filter in Filters_bl]
 H_uncorr = freqz_parfilt(Filter_uncorr, worN=f, fs=fs, causal=False)[1]
 H_corr = freqz_parfilt(Filter_corr, worN=f, fs=fs, causal=False)[1]
 H_dcm = freqz_parfilt(Filter_dcm, worN=f, fs=fs, causal=False)[1]
-H_osdcm = freqz_parfilt(Filter_osdcm, worN=f, fs=10*fs, causal=False)[1]
+H_osdcm = freqz_parfilt(Filter_osdcm, worN=f, fs=N_os*fs, causal=False)[1]
 
 
 # Plots
