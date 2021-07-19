@@ -89,16 +89,16 @@ def phaseshift_sampledelay(n, w, fs):
     return phaseshift_timedelay(delay=n/fs, w=w)
 
 
-def decaying_exponential(p, r, t, atzero=None):
+def decaying_exponential(r, p, t, atzero=0.5):
     """
     Analytic impulse response of a first-order section filter.
 
     Parameters
     ----------
-    p: Complex
-        Pole in the s-domain.
-    r: Complex
+    r: complex
         Residue.
+    p: complex
+        Pole in the s-domain.
     t: array_like
         Time vector.
     atzero: float
@@ -109,47 +109,39 @@ def decaying_exponential(p, r, t, atzero=None):
     idx_zero = (t == 0)
     idx_pos = (t >= 0)
     h[idx_pos] = np.exp(p*t[idx_pos])
-    if atzero is None:
-        h[idx_zero] = 0.5
-    else:
-        h[idx_zero] = atzero
+    h[idx_zero] = atzero
     return r * h
 
 
-def decaying_sinusoid(p, r, t, atzero=None):
+def decaying_sinusoid(r, p, t, atzero=0.5):
     """Analytic impulse response of a second-order section filter.
 
     Parameters
     ----------
-    p: array_like
-        Complex poles in the s-domain.
-    r: array_like
-        Complex residues.
+    r: complex
+        One from the complex conjugate residue. This must corresponds to the
+        pole.
+    p: complex
+        One from the complex conjugate pole. This must corresponds to the
+        residue.
     t: array_like
         Time vector.
     atzero: float
        Value at the jump discontinuity, i.e. n=0, Default is 0.5.
     """
-    p1, p2 = p
-    r1, r2 = r
-    if p1 != p2.conj() or r1 != r2.conj():
-        print('System function is not real!')
     h = np.zeros_like(t)
     idx_zero = (t == 0)
     idx_pos = (t > 0)
-    phi = np.angle(r1)
+    phi = np.angle(r)
     h[idx_pos] = \
-        2 * np.abs(r1) \
-        * np.exp(p1.real * t[idx_pos]) \
-        * np.cos(-p1.imag * t[idx_pos] + phi)
-    if atzero is None:
-        h[idx_zero] = np.abs(r1) * np.cos(phi)
-    else:
-        h[idx_zero] = 2 * atzero * np.abs(r1) * np.cos(phi)
+        2 * np.abs(r) \
+        * np.exp(p.real * t[idx_pos]) \
+        * np.cos(-p.imag * t[idx_pos] + phi)
+    h[idx_zero] = 2 * atzero * np.abs(r) * np.cos(phi)
     return h
 
 
-def bandlimited_decaying_exponential(p, r, t, fs, residual=False):
+def bandlimited_decaying_exponential(r, p, t, fs, residual=False, atzero=0.5):
     """
     Band-limited exponential (BLEX) function.
 
@@ -158,16 +150,18 @@ def bandlimited_decaying_exponential(p, r, t, fs, residual=False):
 
     Parameters
     ----------
-    p: array_like
-        Complex pole.
-    r: array_like
+    r: complex
         Complex residue.
+    p: complex
+        Complex pole.
     t: array_like
         Time vector.
     fs: int
         Sampling frequency in Hz.
     residual: bool
         If True, the BLEX residual is returned.
+    atzero: float
+       Value at the jump discontinuity, i.e. n=0, Default is 0.5.
     """
 
     h = np.zeros_like(t, dtype=complex)
@@ -177,16 +171,16 @@ def bandlimited_decaying_exponential(p, r, t, fs, residual=False):
 
     u1 = -1j*np.pi*fs + p  # lower limit
     u2 = 1j*np.pi*fs + p  # upper limit
-    v1 = 0 if residual else 1j*2*np.pi
-    v2 = 1j*2*np.pi if residual else 0
+    v1 = 1j*2*np.pi if residual else 0
+    v2 = 0 if residual else 1j*2*np.pi
 
-    h[idx_zero] = np.log(u1/u2) - v2
-    h[idx_pos] = exp1(u2*t[idx_pos]) - exp1(u1*t[idx_pos]) + v1
+    h[idx_zero] = np.log(u1/u2) - atzero*v1
+    h[idx_pos] = exp1(u2*t[idx_pos]) - exp1(u1*t[idx_pos]) + v2
     h[idx_neg] = exp1(u2*t[idx_neg]) - exp1(u1*t[idx_neg])
     return -1j/2/np.pi * r * h * np.exp(p*t)
 
 
-def bandlimited_decaying_sinusoid(p, r, t, fs, residual=False):
+def bandlimited_decaying_sinusoid(r, p, t, fs, residual=False, atzero=0.5):
     """
     Band-limited sinusoid function.
 
@@ -195,22 +189,24 @@ def bandlimited_decaying_sinusoid(p, r, t, fs, residual=False):
 
     Parameters
     ----------
-    p: array_like
-        One from the complex conjugate pole. This must corresponds to the
-        pole given in the second argument.
     r: array_like
         One from the complex conjugate residue. This must corresponds to the
-        residue given in the first argument.
+        pole.
+    p: array_like
+        One from the complex conjugate pole. This must corresponds to the
+        residue.
     t: array_like
         Time vector.
     fs: int
         Sampling frequency in Hz.
     residual: bool
         If True, the BLEX residual is returned.
+    atzero: float
+       Value at the jump discontinuity, i.e. n=0, Default is 0.5.
 
     """
-    return 2 * bandlimited_decaying_exponential(p, r, t, fs,
-                                                residual=residual).real
+    return 2 * bandlimited_decaying_exponential(r, p, t, fs, residual=residual,
+                                                atzero=atzero).real
 
 
 def impulse_invariance(r, p, k, L_fir, n_center, fs, mode, window=None):
@@ -312,7 +308,7 @@ def fos_real_pole(r, p, L_fir, n_center, fs, mode, window=None):
 
     if mode in {'bandlimited', 'dcmbandlimited'}:
         n = np.arange(L_fir) - n_center
-        blexres = bandlimited_decaying_exponential(p, r, n/fs, fs,
+        blexres = bandlimited_decaying_exponential(r, p, n/fs, fs,
                                                    residual=True)
         FIR = T * blexres.real
         if window is not None:
@@ -379,7 +375,7 @@ def sos_cplx_poles(r, p, L_fir, n_center, fs, mode, window=None):
 
     if mode in {'bandlimited', 'dcmbandlimited'}:
         n = np.arange(L_fir) - n_center
-        blexres = bandlimited_decaying_sinusoid(p, r, n/fs, fs, residual=True)
+        blexres = bandlimited_decaying_sinusoid(r, p, n/fs, fs, residual=True)
         FIR = T * blexres
         if window is not None:
             FIR *= window
@@ -440,8 +436,10 @@ def set_rcParams():
     rcParams['axes.edgecolor'] = 'k'
     rcParams['axes.facecolor'] = 'None'
     rcParams['axes.labelcolor'] = 'black'
-    rcParams['xtick.color'] = 'black'
-    rcParams['ytick.color'] = 'black'
+    rcParams['font.family'] = 'serif'
+    rcParams['font.sans-serif'] = 'Times New Roman'
+    rcParams['font.weight'] = 'normal'
+    rcParams['font.size'] = 13
     rcParams['grid.linewidth'] = 0.25
     rcParams['legend.facecolor'] = 'white'
     rcParams['legend.fontsize'] = 13
@@ -449,10 +447,8 @@ def set_rcParams():
     rcParams['legend.frameon'] = True
     rcParams['legend.framealpha'] = 1
     rcParams['legend.edgecolor'] = 'k'
+    rcParams['savefig.bbox'] = 'tight'
     rcParams['text.usetex'] = True
     rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
-    rcParams['font.family'] = 'serif'
-    rcParams['font.sans-serif'] = 'Times New Roman'
-    rcParams['font.weight'] = 'normal'
-    rcParams['font.size'] = 13
-    rcParams['savefig.bbox'] = 'tight'
+    rcParams['xtick.color'] = 'black'
+    rcParams['ytick.color'] = 'black'

@@ -1,25 +1,25 @@
 """
-Impulse response of a first-order section with a real pole.
+Impulse response of a second-order section with complex conjugate poles.
 
-- Full-band impulse response (decaying exponential)
-- Band-limited impulse response (BLEX function)
-- The difference between the above two (BLEX residual)
+- Full-band impulse response (decaying sinusoid)
+- Band-limited impulse response
+- The difference between the above two (residual)
 
 """
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
-from util import (set_rcParams, decaying_exponential,
-                  bandlimited_decaying_exponential)
+from util import (set_rcParams, decaying_sinusoid,
+                  bandlimited_decaying_sinusoid)
 
-# Continuous-time system (single-pole)
-r = 1  # residue
-p = -2*np.pi*2000 + 0j  # pole in the Laplace domain
+# Continuous-time system
+r = np.array([0.5, 0.5])  # residues
+p = 2*np.pi*5000*np.array([-1+1j, -1-1j])  # complex poles
 
 # Discrete-time system setup
 fs = 48000.
 Ts = 1/fs
-N_os = 50  # oversampling factor for quasi continuous time
+N_os = 50  # oversampling factor for quasi continuous-time
 fs_os = fs * N_os
 
 # Time axes
@@ -30,16 +30,16 @@ t_os = (np.arange(L*N_os) - M*N_os) / fs_os  # continuous time axis
 unitstep = 1. * (t_os >= 0)
 
 # Impulse responses (full-band and band-limited)
-h_fb_os = decaying_exponential(r, p, t_os).real
-h_fb = decaying_exponential(r, p, t).real
-h_bl_os = bandlimited_decaying_exponential(r, p, t_os, fs).real
-h_bl = bandlimited_decaying_exponential(r, p, t, fs).real
-res_os = bandlimited_decaying_exponential(r, p, t_os, fs, residual=True).real
-res = bandlimited_decaying_exponential(r, p, t, fs, residual=True).real
+h_fb_os = decaying_sinusoid(r[0], p[0], t_os)
+h_fb = decaying_sinusoid(r[0], p[0], t)
+h_bl_os = bandlimited_decaying_sinusoid(r[0], p[0], t_os, fs)
+h_bl = bandlimited_decaying_sinusoid(r[0], p[0], t, fs)
+res_os = bandlimited_decaying_sinusoid(r[0], p[0], t_os, fs, residual=True)
+res = bandlimited_decaying_sinusoid(r[0], p[0], t, fs, residual=True)
 
 
 # Plots
-fig_name = 'blex-and-residual-fos'
+fig_name = 'blex-and-residual-sos'
 set_rcParams()
 xlim = t.min()/Ts + 0.5, t.max()/Ts - 0.5
 ylim = -0.7, 1.2
@@ -63,8 +63,8 @@ for axi in ax:
     axi.xaxis.set_major_locator(MultipleLocator(5))
     axi.xaxis.set_minor_locator(MultipleLocator(1))
     axi.set_xlabel('$t$ / $T$')
-ax[0].set_title('BLEX')
-ax[1].set_title('Full-band IR')
-ax[2].set_title('BLEX residual')
+ax[0].set_title('Band-limited')
+ax[1].set_title('Full-band')
+ax[2].set_title('Residual')
 plt.savefig(fig_name + '.pdf', **kw_savefig)
 plt.savefig(fig_name + '.png', **kw_savefig)
