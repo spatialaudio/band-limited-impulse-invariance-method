@@ -264,7 +264,7 @@ def impulse_invariance(r, p, k, L_fir, n_center, fs, mode, window=None):
     for filt in filters_cplx:
         IIR.append((filt[0], filt[1]))
         FIR += filt[2]
-    if len(k) > 0:
+    if len(k) == 1:
         FIR[n_center] += k
     return IIR, FIR, n_center
 
