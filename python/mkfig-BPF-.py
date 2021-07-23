@@ -20,7 +20,7 @@ from mpl_toolkits.axes_grid1.inset_locator import (mark_inset)
 # Constants
 c = 343
 fs = 48000
-N_os = 10  # oversampling rate
+N_os = 8  # oversampling rate
 
 # Frequencies
 fmin, fmax, num_f = 40, 24000, 2000
@@ -77,7 +77,7 @@ kw_subplots = dict(figsize=(7, 3), ncols=2, sharex=True, sharey=True,
                    gridspec_kw=dict(wspace=0.05))
 kw_axislabels = dict(fontsize=15)
 kw_legend = dict(bbox_to_anchor=(1.05, 0, 0.58, 1), mode='expand',
-                 borderaxespad=0, handlelength=1.5)
+                 borderaxespad=0, handlelength=1.)
 kw_savefig = dict(dpi=300, bbox_inches='tight')
 
 # Conventional impulse invariant method (single-point correction)
