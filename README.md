@@ -4,7 +4,7 @@ Supplementary material for the paper entitled "Band limited impulse invariance m
 
 The python scripts generate the following figures:
 
-* The full-band and band-limited impulse responses of a one-pole system are shown
+* The full-band and band-limited impulse responses of a one-pole system
 
 * Digital modeling of an analog filter using the conventional impulse invariance method
 
