@@ -44,7 +44,7 @@ set_rcParams()
 xlim = t.min()/Ts + 0.5, t.max()/Ts - 0.5
 ylim = -0.7, 1.2
 kw_subplots = dict(figsize=(8, 2), ncols=3, sharex=True, sharey=True,
-                   gridspec_kw=dict(wspace=0.05))
+                   gridspec_kw=dict(wspace=0.25))
 kw_a = dict(lw=0.5, c='k')
 kw_d = dict(marker='o', ms=6, ls='', mew=0, mfc='0.6', zorder=1)
 kw_savefig = dict(dpi=300, bbox_inches='tight')
@@ -66,5 +66,7 @@ for axi in ax:
 ax[0].set_title('BLEX')
 ax[1].set_title('Full-band IR')
 ax[2].set_title('BLEX residual')
+ax[0].text(10, 0.25, r'$=$', va='center')
+ax[1].text(10, 0.25, r'$+$', va='center')
 plt.savefig(fig_name + '.pdf', **kw_savefig)
 plt.savefig(fig_name + '.png', **kw_savefig)
