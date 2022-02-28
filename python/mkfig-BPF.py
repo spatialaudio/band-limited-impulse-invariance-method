@@ -133,7 +133,7 @@ for axi in ax:
     axi.set_xlim(flim)
     axi.set_xticks(xticks)
     axi.set_xticklabels(xticklabels)
-    axi.set_xlabel(r'Frequency in Hz', **kw_axislabels)
+    axi.set_xlabel(r'Frequency in kHz', **kw_axislabels)
 ax[0].set_ylim(mlim)
 ax[0].set_ylabel('Level in dB', **kw_axislabels)
 ax[0].set_title('Transfer Function')
